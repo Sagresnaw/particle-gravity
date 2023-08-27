@@ -1,15 +1,15 @@
 class Particle {
     constructor(x, y, mass = 100) {
-        this.position = { x: x, y: y}
-        this.velocity = {x: (Math.random() * 2 - 1) * 2, y:(Math.random() * 2 - 1) * 2}
+        this.position = new PIXI.Point(x, y);
+        this.velocity = new PIXI.Point((Math.random() * 2 - 1) * 2, (Math.random() * 2 - 1) * 2);
+        this.acceleration = new PIXI.Point(0, 0);
+        this.mass = mass;
         this.r = Math.sqrt(mass) * 0.125;
         this.color = "white";
-        this.mass = mass;
-        this.acceleration = {x: 0, y: 0}
-        this.maxSize = 5;
         this.path = new Array(MAX_PATH_LENGTH).fill(null);
-        this.pathIndex = 0;  // To keep track of where to insert
-        this._tempForce = null;
+        this.pathIndex = 0; 
+        this.maxSize = 5;
+        this._tempForce = new PIXI.Point(0, 0);
     }
 
     updatePath(newPosition) {
@@ -52,12 +52,8 @@ class Particle {
     
 
     applyForce(force) {
-        if (!force || !force.x || !force.y) return;
-        if (!this._tempForce) this._tempForce = {x: 0, y: 0}
-    
-        this._tempForce = {x: force.x, y: force.y};
-        this._tempForce.x /= this.mass;
-        this._tempForce.y /= this.mass;
+        if (!force) return;
+        this._tempForce.set(force.x / this.mass, force.y / this.mass);
         this.acceleration.x += this._tempForce.x;
         this.acceleration.y += this._tempForce.y;
     }
@@ -153,8 +149,4 @@ if (speed > MAX_SPEED) {
     draw() {
         // Draw the particle
     }
-
-    setColor(value) {
-        this.color = value;
-      }
 }
