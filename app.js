@@ -43,6 +43,7 @@ graphics.eventMode = 'dynamic';
 const MAX_PATH_LENGTH = 5;
 const EFFECTIVE_RANGE = 500;  // or some other value
 const dotTexture = PIXI.Texture.from('dot.svg');
+const PARTICLE_COUNT = 10000;
 
 
 let dragging = false;
@@ -53,7 +54,7 @@ app.stage.buttonMode = true;
 // Center of the expanded boundary
 const centerX = app.view.width * 5;
 const centerY = app.view.height * 5;
-const spread = 5000;
+const spread = 8000;
 
 app.stage.position.set(-centerX + app.view.width / 2, -centerY + app.view.height / 2);
 
@@ -95,12 +96,12 @@ app.stage.on('pointermove', function(event){
     }
 });
 
-const particleContainer = new PIXI.ParticleContainer(10000, {
+const particleContainer = new PIXI.ParticleContainer(PARTICLE_COUNT, {
     position: true,
     rotation: false,
     scale: true,
     uvs: false,
-    alpha: true
+    alpha: false
 });
 app.stage.addChild(particleContainer);
 
@@ -118,11 +119,11 @@ const qtree = new QuadTree(boundary, 1);
 // Initialize particles and add them to the stage
 const particles = [];
 const particleSprites = [];
-for (let i = 0; i < 10000; i++) {
+for (let i = 0; i < PARTICLE_COUNT; i++) {
     const particleX = centerX + (Math.random() - 0.5) * spread;
     const particleY = centerY + (Math.random() - 0.5) * spread;
 
-    const particle = new Particle(particleX, particleY, Math.random() * 100 + 50);
+    const particle = new Particle(particleX, particleY, Math.random() * 500 + 150);
     particle.fixSize();
     particles.push(particle);
     qtree.insert(particle.toPoint());
@@ -136,7 +137,7 @@ for (let i = 0; i < 10000; i++) {
     particleContainer.addChild(sprite);
 }
 
-const G = 1;  // Gravitational constant
+const G = 0.1;  // Gravitational constant
 const MAX_SPEED = 5;  // Maximum speed for a particle
 const particlesToMerge = [];  // Array to store particles that need to be merged
 
@@ -199,9 +200,7 @@ for (let i = 0; i < particles.length; i++) {
         const particle = particles[i];
         particle.update(delta);
         particle.path.push({x: particle.position.x, y: particle.position.y});
-        if (particle.path.length > MAX_PATH_LENGTH) {
-            particle.path.shift();
-        }
+        particle.updatePath({x: particle.position.x, y: particle.position.y});
 
 //         // Draw the orbit
 // if (particle.path.length >= 2) {

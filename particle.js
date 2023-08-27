@@ -1,14 +1,20 @@
 class Particle {
     constructor(x, y, mass = 100) {
         this.position = { x: x, y: y}
-        this.velocity = {x: (Math.random() * 2 - 1), y:(Math.random() * 2 - 1)}
+        this.velocity = {x: (Math.random() * 2 - 1) * 2, y:(Math.random() * 2 - 1) * 2}
         this.r = Math.sqrt(mass) * 0.125;
         this.color = "white";
         this.mass = mass;
         this.acceleration = {x: 0, y: 0}
         this.maxSize = 5;
-        this.path = [];
+        this.path = new Array(MAX_PATH_LENGTH).fill(null);
+        this.pathIndex = 0;  // To keep track of where to insert
         this._tempForce = null;
+    }
+
+    updatePath(newPosition) {
+        this.path[this.pathIndex] = newPosition;
+        this.pathIndex = (this.pathIndex + 1) % MAX_PATH_LENGTH;  // Wrap around to the start
     }
 
     
